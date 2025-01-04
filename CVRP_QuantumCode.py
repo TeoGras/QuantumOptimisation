@@ -5,7 +5,6 @@ from dwave.cloud.client import Client
 from dwave.cloud import config
 import numpy as np
 import pandas as pd
-import ast
 import itertools
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
@@ -14,6 +13,7 @@ import math
 import time
 import re
 import os
+import json
 
 # To display the mapping on the qubit and other data
 # import dwave.inspector as inspector
@@ -137,6 +137,7 @@ def Classification(nbOfPointToCluster, nbOfCluster, matrixOfCost, vectorOfCapaci
     # We transform it in a panda dataframe
     dataFrame = sampleset.to_pandas_dataframe(sample_column=True)
     dataFrame = dataFrame[["sample", "energy", "is_feasible"]]
+    dataFrame["sample"] = dataFrame["sample"].map(lambda x: json.dumps(x))
     dataFrame = dataFrame.sort_values(by="energy")
     dataFrame.to_csv("clustering.csv")
 
@@ -169,17 +170,7 @@ def generateClustersFromCSV(numberOfVehicles, numberOfCities):
     df = pd.read_csv("clustering.csv")
     line = df.loc[df["is_feasible"] == True].iloc[0]
 
-    # Clean up the string so that it is usable with ast.literal_eval
-    sample = line["sample"]
-
-    # Replace `np.float64` with native type `float`
-    sample = sample.replace("np.float64(", "").replace(")", "")
-
-    # Convert string with ast.literal_eval
-    try:
-        relation = ast.literal_eval(sample)
-    except Exception as e:
-        raise ValueError(f"Error parsing 'sample': {e}")
+    relation = json.loads(line["sample"])
 
     listClusters = []
     for i in range(0, numberOfVehicles):
@@ -308,6 +299,7 @@ def TSP(nbOfPoint, matrixOfCost, fileName):
     # Transform the solution in a panda dataframe
     dataFrame = sampleset.to_pandas_dataframe(sample_column=True)
     dataFrame = dataFrame[["sample", "energy", "is_feasible"]]
+    dataFrame["sample"] = dataFrame["sample"].map(lambda x: json.dumps(x))
     dataFrame = dataFrame.sort_values(by="energy")
     # Save in a .csv
     dataFrame.to_csv(fileName)
@@ -328,17 +320,7 @@ def generateTSPPositionFromCSV(nameOfCSV, clusterOfCSV):
     df = pd.read_csv(nameOfCSV)
     line = df.loc[df["is_feasible"] == True].iloc[0]
 
-    # Clean up the string so that it is usable with ast.literal_eval
-    sample = line["sample"]
-
-    # Replace `np.float64` with a native type `float
-    sample = sample.replace("np.float64(", "").replace(")", "")
-
-    # Convert string with ast.literal_eval
-    try:
-        relation = ast.literal_eval(sample)
-    except Exception as e:
-        raise ValueError(f"Error parsing 'sample': {e}")
+    relation = json.loads(line["sample"])
 
     # Initialize a list of positions with zeros
     listPositionsPerCluster = list(np.zeros(len(clusterOfCSV)).astype(int))
