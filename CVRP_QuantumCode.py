@@ -61,10 +61,11 @@ def generateCostMatrix(listCities):
 def plotCostMatrix(costMatrix):
     cityNumber = [i for i in range(0, len(costMatrix))]
     df = pd.DataFrame(costMatrix, columns=cityNumber, index=cityNumber)
+
     try:
         text_file = open("CostMatrix.txt", "w")
     except OSError:
-        print("Could not open/read file:", file)
+        print("Could not open/read file: CostMatrix.txt")
         exit()
     dfAsString = df.to_string(header=True, index=True)
     text_file.write(dfAsString)
@@ -106,16 +107,13 @@ def Classification(nbOfPointToCluster, nbOfCluster, matrixOfCost, vectorOfCapaci
     # Preparation of our matrix that will got our solution
     x = {(i, d): Binary("x{}_{}".format(i, d)) for i in range(nbOfPointToCluster) for d in range(nbOfCluster)}
 
-    # ------------------------------------------------------------------------------------ #
-    #                                 Objective function:                                  #
-    # ------------------------------------------------------------------------------------ #
+
+    # Objective function:
     objective = quicksum(matrixOfCost[i][j] * x[(i, d)] * x[(j, d)] for i in range(nbOfPointToCluster) for j in range(i + 1, nbOfPointToCluster) for d in range(nbOfCluster))
 
     cqm.set_objective(objective)
 
-    # ------------------------------------------------------------------------------------ #
-    #                               subject to the constraints:                            #
-    # ------------------------------------------------------------------------------------ #
+    # subject to the constraints:
     # We want the depot in every cluster
     for d in range(nbOfCluster):
         cqm.add_constraint(x[(0, d)] == 1)
@@ -131,9 +129,7 @@ def Classification(nbOfPointToCluster, nbOfCluster, matrixOfCost, vectorOfCapaci
     for i in range(1, nbOfPointToCluster):
         cqm.add_constraint(quicksum(x[(i, d)] for d in range(nbOfCluster)) == 1)
 
-    # ------------------------------------------------------------------------------------ #
-    #                               Resolution & data analysis:                            #
-    # ------------------------------------------------------------------------------------ #
+    # Resolution & data analysis:
     # We get our solution
     cqm_sampler = LeapHybridCQMSampler()
     sampleset = cqm_sampler.sample_cqm(cqm)
@@ -166,10 +162,6 @@ def VerifClusturing(matrixOfCluster, vectorOfCapacity, vectorOfVolume):
 # --------------------------------------------------------------------------------------------- #
 #                                         generateClustersFromCSV                               #
 # --------------------------------------------------------------------------------------------- #
-import pandas as pd
-import ast
-
-
 def generateClustersFromCSV(numberOfVehicles, numberOfCities):
     """
     Function that reads the .csv file of the clustering to return the list of clusters.
