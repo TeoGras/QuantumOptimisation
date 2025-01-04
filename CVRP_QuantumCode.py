@@ -1,19 +1,16 @@
-from dimod import ConstrainedQuadraticModel, CQM, SampleSet
-from dimod import Binary, quicksum
-from dwave.system import LeapHybridCQMSampler
-from dwave.cloud.client import Client
-from dwave.cloud import config
+import json
+import math
+import os
+import random
+import re
+import time
+
+import matplotlib.colors as mcolors
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import itertools
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
-import random
-import math
-import time
-import re
-import os
-import json
+from dimod import Binary, ConstrainedQuadraticModel, quicksum
+from dwave.system import LeapHybridCQMSampler
 
 # To display the mapping on the qubit and other data
 # import dwave.inspector as inspector
